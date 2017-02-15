@@ -1,0 +1,22 @@
+
+==================unkown==========h
+GDT:lgdt
+LDT:lldt
+TSS:ltr
+IDT:idtr
+
+Thu Apr 28 14:40:28 CST 2016
+##if you want to insert the date info,you can type :r!date
+
+虚拟地址-->线性地址-->物理地址转换
+
+首先通过分段方式把地址转换为线性地址，然后通过分页机制转换为虚拟地址
+
+
+ldt & gdt
+
+ldt的地址包含在gdt列表中
+加载gdt(lgdt 6bit gdt 的地址和长度)
+加载ldt(lldt 4bit gdt中的des)
+
+

@@ -1,0 +1,67 @@
+github.com 的操作
+1、创建远程仓库
+   个人理解必须现在服务器上创建好仓库，才可以在本地创建本地仓库然后连接到远程仓库
+    远程可以通过界面操作创建仓库
+    本地操作命令如下：
+    (1)、git init //创建本地仓库
+    (2)、git remote add XX1 xxxx   其中XX1为后面xxxx的别名，一般可以定义为origin
+		xxxx代表地址，ssh或者http
+    (3)、git commit 之后会自动生成master branch，然后可以通过push的方式提交的服务器
+2、clone仓库
+   git clone xxx1   XXXXX2  xxx1 地址，XXXX2本地地址 
+
+3、查看当前仓库状态: git status
+4、查看git配置：git config -l
+
+
+5、上传修改的内容(file)
+   (1)、git add file   //追踪file文件
+   (2)、git commit -m "log" //提交到本地仓库 git commit -a -m "":可以不用add直接将
+	修改过的文件上传到本地仓库
+   (3)、push origin branch; //origin:远程仓库 branch:当前分支
+
+6、分支操作
+   (1)、查看本地分支：git branch
+   (2)、查看远程分支：git branch -r 
+   (3)、添加本地分支：git branch brancnName
+   (4)、复制远端分支: git checkout rembranName :直接切换就会复制下来(个人理解)
+	复制远端分支并且指定名称：git checkout -b branchname xxxx xxxx代表远程分支，可以通过git branch -a 查看，一般以remotes/开头
+   (5)、分支切换    : git checkout branchName
+   (6)、删除本地分支：git branch -d branchName
+   (7)、删除远程分支: git push XXXX :branchName 
+   (8)、上传本地分支到远程:git push XXX localBran:remoteBran
+			   git push XXX localBran 
+			区别是第一个会上传本地分支到远端指定的分支，第二个是上传本			  地的分支到远程同名的分支
+7、上传本地仓库内容到远程仓库
+   (1)、git push XXX branchName XXX：远程仓库  branchName：远程分支名称
+8、同步服务器文件到本地
+   (1)、git pull XXX branch(远程)//区分并合并到本地
+   (2)、git fetch XXX branch(远程):temp(临时branch) 经最新文件下载到temp分支
+	可以通过git diff 和git merge 合并到需要的branch中，然后删除临时分支branch
+
+9、创建GIT服务器
+   1、确保ssh服务打开
+   2、可以创建新用户区管理GIT服务 user add XXX
+   3、git init --bare
+   4、客户端 clone XXX git@Ip地址://路径
+10、git stash 隐匿当前修改的文件=====用到的环境：
+	如果当前在某一个分支上进行修改，突发情况需要切换到另外一个分支上去修改，但是又不想提交当前修改的内容（不能直接切换，会提示请提交的错误）
+	，可以执行git stash，将当前分支的更改的内容保存到堆栈中（git stash list 可以查看）。当突发情况处理完成后，可以通过git stash pop返回到当前修改的现场
+
+11、TAG
+	添加tag： git tag -a "tag name" -m "log" HEAD;;;将当前的branch作为tag
+	列表tag:  git tag -l
+	删除本地tag：git tag -d tagname
+	删除远端tag：git push origin :tagname
+12、打补丁
+	生成PATCH
+	git diff >>文件名
+	git format-patch -M branchName
+	
+	合并PATCH
+	git apply 文件名；；
+	git am 文件名；；等价于将合并好的文件 git commit -a -m
+备注：
+/etc/hosts 中可以给一些IP指定别名 
+具体 ： 61.135.169.121 baidu 是将百度的ip 指定为baidu 可以通过ping baidu 拼百度的ip
+生成SSHkey的方法：ssh-keygen -t rsa -C “电子邮箱名称”

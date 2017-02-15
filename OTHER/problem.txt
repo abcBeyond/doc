@@ -1,0 +1,147 @@
+[AWK]
+	awk 内置变量
+	ARGC 命令行参数个数
+	ARGV 命令行参数排列
+	ENVIRON 支持队列中系统环境变量的使用
+	FILENAME AWK浏览文件的名称
+	FNR 浏览文件的记录数
+	FS 设置输入域分隔符，等价于 -F
+	NF 浏览记录的域的个数
+	NR 已读的记录数
+	OFS 输出域分隔符
+	ORS 输出记录分隔符
+	RS 控制记录分隔符
+
+
+[color]
+	echo/printf 颜色
+	//字体颜色
+	\033[\030m ：黑色
+	\033[\031m ：红色
+	\033[\032m ：绿色
+	\033[\033m ：黄色
+	\033[\034m ：蓝色
+	//背景颜色 具体的可以测试
+	\033[\041m:
+	\033[\04m:
+	\033[\04m:
+	\033[\04m:
+	\033[\04m:
+	\033[\04m:
+
+[va_list]
+	1、va_list va_start va_end va_arg
+		  void func(int a,...){
+			/*	int iSize = a;
+			int firstPos = (int)&a;
+			int j = 0;
+			for(int i=firstPos+4;j<a;j++,i+=4)
+			{
+				cout<<*(int*)i<<endl;
+			}	
+			return;*/
+		va_list argp;
+		int para;
+		va_start(argp,a);
+		for(int i=0;i<a;i++)
+		{
+			para = va_arg(argp,int);
+			cout<<para<<endl;
+		}
+		va_end(argp);
+		return;
+		}
+
+
+
+/////////////ASM///////////////
+	命令				意义			关联标志
+	je  			 等于则跳转        		ZF=1
+	jne			 不等于则跳转			zf=0
+	jb=jnae(below)    	小于则跳转  			cf=1  经常和cmp一起使用
+	jnb			不小于则跳转			cf=0
+	ja(above)  		大于则跳转			cf=0且zf=0
+	jna			不大于则跳转			cf=1或者zf=1
+	1、整数比较：
+	 -eq :测试是否相等
+	 -ne ：测试是否不相等
+	 -gt ：测试是否大于 
+	 -lt ：测试是否小于
+	 -ge : 测试是否大于等于
+	 -le : 测试是否小于等于
+	2、字符测试
+	 == : 测试是否为相等
+	 != : 测试是否不相等
+	 =~： 模式匹配??
+	 -z string: 测试是否为空
+	 -n string: 测试是否不为空
+	 -s string: 测试是否不为空
+	3、文件测试
+	 -a file:测试文件是否存在
+	 -z file:测试文件是否存在
+	 -l/-L file:测试文件是否为软文件连接
+	 -b:测试文件是否为块文件
+	 -c：测试文件是否为字符文件
+	 -S：测试文件是否为套接字文件
+	 -p:是否为命名管道
+	 -s:非空文件为真
+	 
+	 -f file：测试文件是否为普通文件
+	 -d file：测试文件是否为目录文件
+	 -r file：测试文件对当前用户是否可读
+	 -w file：测试文件对当前用户是否可写
+	 -x file：测试文件对当前用户是否可执行
+	 -N file：修改文件时间比访问时间要新则为真
+
+	 针对于重定向情况：
+	 file1 -nt file2:file1 要比 file2 要新
+	 file1 -ot file2:file1 要比 file2 要新
+	4、组合测试
+
+	 -a 相当于&&
+	 -o 相当于 ||
+	！ 非关系
+
+[VIM]
+	1.ctags
+		ctags -R * ;生成tags文件
+		vi -t functionname;
+		:tp 上一个functionname的位置
+		:tn 下一个functionname的位置
+		:Tlist	tlist 列表
+	2、设置书签
+		m+[a-z];命令模式下按m键和a-z任意一键，设定当前位置为书签，a-z为标号
+		`+[a-z]：同上，m键换为`key
+	3.向VI中添加当前时间或者其他命令返回值：
+		r!date
+		r!pwd
+	4.show hex	
+		:%!xxd
+[MakeFile]
+1、gcc -I XXX 设定XXX路径为检测头文件第一个路径
+2、gcc -L XXX 设定XXX路径为检测库文件第一个路径
+3、gcc -lworld 在lib库文件夹中寻找libworld.so 的动态库
+	nasm 同 gcc
+4、make XXX=data 
+	you can use data by $(XXX)
+	if you want to use ifdef.ifeq.ifneq you must follow this format
+	just like follow:
+		all:
+		ifeq(ifdef....)
+			do somethig
+		else
+			do anther thing
+		endif
+	"all" and "ifeq"....must at the same colume
+[other]
+1、 按位取反操作详解：
+	~1 = -2
+	~7=-8
+	1二进制位01b  取反后结果为11..10 因为计算机内以补码形式存储数据，1取反后的数据的标识符直接为1，所以应为负数，其中负数的补码为保留符号位不变反码+1，因此可以得到原数的反码为11…01，因此源数据为100….10即-2，所以结果为-2
+
+	7->0111 ~7->1111…..1000->111….0111->10….1000=-8
+
+	-1->1000….01 反码：11…..10 补码 11……11 计算机内存储数据的方式是存储补码，即-1在内存的表现方式为111…..111
+
+
+
