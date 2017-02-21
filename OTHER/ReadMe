@@ -1,0 +1,174 @@
+1.
+	重载->()
+ 	步骤1. 如果a是指针，指向一个具有成员b的类对象，那么a->b返回a类型的成员b，至此，语句结束；   
+	步骤2. 如果a是一个对象（对象必须重定义了“operator->”，否则报错），那么就调用a的operator->（）函数，返回值：如果是指针则继续执行步骤1，如果是对象则继续执行步骤2，直到最终走到指针结束。 
+2.
+	python 中定义不固定个数入参时如果传入tumple 或者list,在调用时用func(*(list|tumple))方式
+	传入dict(已定义)时,使用func(**dict),方式
+3.
+	(1).python 类的静态变量的声明:
+	class C:
+		a=xx()#静态变量,可以通过类名来访问
+		def __inti__(self):#self.XX为类变量
+	静态变量被实例变量覆盖的情况说明:
+	class ctets:
+	a = 10
+	def __init__(self):
+		print "init"	
+
+	if __name__=="__main__":
+		# print ctets.a
+		ctest = ctets()
+		ctest.a = 100	#会覆盖类的静态变量,实力中会用到此a
+		print ctets.a ##output is:10
+		print ctest.a##output is:100
+
+	(2).描述符相关(类中带有__get__(),__set__(),__del__()函数的类,称为描述符类)
+		python property
+		@property 如果要用XXX.setter 此类必须继承 object 类
+		class NonNegative(object): #描述符类
+			def __init__(self):
+				self.data =dict() #定义成dict 可以根据不同的类对象键值获取不同的属性
+			def __get__(self,instance,cls):#instance 类对象,cls类名称
+				print "__get__"
+				return self.data.get(instance)
+			def __set__(self,instance,value):#不同于get,不需要类名称
+				print "__set__"
+				if value: #可以添加对赋值操作的限制
+					pass;
+				self.data[instance] = value#这个是赋值操作调用的内容
+		class UseNonNeg(object):
+			nonneg = NonNegative()
+			nonneg1=NonNegative()
+			def __init__(self,non1,non2):
+				self.nonneg = non1 #检测到nonneg为描述符类,自动调用set,注意描述符类对象没有self,此处有self,python 会根据字符串匹配????
+				self.nonneg1  = non2
+	(3).装饰器(利用函数在python中也是变量的原理,为一些函数或者类添加一些固定的处理(类装饰器装饰主要装饰是__call__(self,*args)函数))
+		(1).def deco(func):
+			def wrapper(*args):
+				XXXXX
+			return wrapper
+		@deco
+		def func(*args):
+			****
+		func(*args)
+		(2)def deco(SomeThing):#函数装饰器
+			def _deco(func):
+				def wrapper(*args):
+					****
+				return wrapper
+			return _deco
+		@deco(something)
+		def func(*args):
+		   	XXXXXX
+		func(*args)
+		(3) class deco(object):#类装饰器
+			def __init__(self,func):
+				super(deco,self).__init__()
+				self._func = func
+			def __call__(self,*args):
+				self._func(*args)
+		   @deco
+		    def func(*args):
+		    	XXXXXXXX
+		 (4)def deco(cls,XXX):
+		 	cls.XXX =XXX
+		   @deco
+		   class test123(object):
+		   	pass;
+		  test = test123()
+		  test.XXX 	 
+	(4)python 调用 c语言
+	#include <Python.h>
+	#include <stdio.h>
+`	 char*  extract(char * path)                                                   //想要调用的函数
+	{
+		printf("%s\n",path);
+		return (char*)0;
+	}
+	PyObject* wrap_extract123(PyObject* self, PyObject* args)           //	与python的接口函数，python中实际上调用的是这个函数，由这个函数调用真正的函数
+	{
+	      int n;
+	      char * path,*result; 
+	       if (! PyArg_ParseTuple(args, "s:extract",&path))                //进行参数传递，把python中的参数转到c语言中,s代表返回值类型
+	                 return NULL;
+	      result = extract(path);
+	       return Py_BuildValue("s", result);//Py_BuildValue是变參函数,个人认为s 表示类型(未认证),同pyarg_parseTuple 参数
+	 }
+	static PyMethodDef extractMethods[] =                             
+	{
+		{"extract", wrap_extract123, METH_VARARGS, "What'sthis"},
+		{NULL, NULL}
+	};
+	void initextract()                                                   //当import这个模块之后会调用这个函数。
+	{
+		PyObject* m;
+		m = Py_InitModule("extract", extractMethods);
+	}
+4.git	
+
+	(1).git内部原理
+		git blob 和 tree 并不实质对应仓库中的文件夹和名称,只是在提交以及生成仓库时根据文件名和文件夹逻辑对应生成
+		git hash-object -w fileName   //添加blob文件,在.git/object/中生成对应的SHA1哈希值(012345676.......),在object中存储的方式为01(前两个字符)作为文件夹名称,剩余为文件名(234......),tree,commit,tag同上 
+		git update-index --add (--cacheinfo 100644(文件区分) (SHA1HASH) ) fileName//添加到cache(tree),并不生成tree
+		git write-tree//提交,生成tree(sha1sum)
+		git read-tree --prefix=bak(tree名称,对应文件夹) d8329fc1cc938780ffdd9f94e0d364e0ea74f579 //然后执行git write-tree 
+		echo 'second commit' | git commit-tree 0155eb -p  //生成commit对象
+		git add *相当于git hash-object -w * & git update-index --add * & git write-tree 
+		git commit -m ""相当于echo "XXXX"|git commit-tree
+			git commit --amend "修正上次提交的log"
+	(2).其他
+		1.git init 后必须git commit 后才会出现branch(默认master)
+		2.git config --global alias.co checkout 设置快捷方式(别名)   git config --global --get-regexp alias  显示所有别名
+	(3).常用命令
+		1.git add后取消git reset --hard (sha1sum)根据校验值,回复到固定版本 ----实验 git reset 可以直接取消add
+
+		2.git add/rm/mv 同 shell add /rm/mv 针对git 使用 
+		3.commit 后通git revert (sha1sum 要删除的commit sha1sum )回复
+		4.git checkout :(1).切换branch,(-b/B) branchName ****新建并且切换到新分支,***代表某一版本的/HEAD~XX git branch XXX -b branchXX 	commit,B表示强制新建,如果存在覆盖原来的branch
+
+				(2).检出文件,如当前仓库中有文件test123,可以通过git checkout (--) test123的方式检出,如果当前仓库中存在test123的branch,可以添参数--指名检出文件而非branch
+				(3).各种参数
+					-p,
+					--merge 这个命令适用于在切换分支的时候，将当前分支修改的内容一起打包带走，同步到切换的分支下
+					--orphan(检出的branch不带log),必须commit 后才会出现branch
+				(4).git checkout (sha1sum),会进入到detached branch 状态,即HEAD 只想某一版本的commit,不链接到任意branch,具体不明白
+		5.git clone . newDIr clone当前仓库到本地,更新对方的话,./目录可以通过git pull newDIr/ HEAD ,newDIr 可以通过git pull 更新
+		6.分支内容快速合并,br1 br2,首先在br2处修正内容,然后commit ,然后切换到br1,执行merge,成功后后自动提交
+		7.git brance -m XX1 XX2  更改branch xx1 为xx2
+		8.git stash 保存当前状态到隐藏区,然后返回到最近的一次提交(最好不要多次使用,容易乱)
+		9.git cherry-pick 将某个branch1 上的某个commit (sha1sum)合并到另一个branch2上,
+			git checkout branch2
+			git cherry-pick sha1sum
+		10.git rebase -i HEAD~X     X 最近x条. 目的是对提交的log信息进行修改(onto??????)
+			" 1 pick fa71d6e change in dir testgit
+ 			 2 pick 9b3fa52 add file aaa.log
+  			 3 pick bdd6ecb Revert "add file aaa.log"
+  			 4 pick 0cd76eb change file bbb.log
+  			 5 pick 2a931b9 add file ccc.log date 2017-2-14 14:27"
+  			 以上为实例中截取的信息,其中重要内容是pick  字串,
+  			 可以替换为
+  			 	替换 pick 使用：
+					edit 标记一个提交需要修订。git commit --amend 自动定位到此log,默认定位到第一条
+					reword 改变日志信息。
+					squash 将一个提交与其前一个合并。
+					fixup 将一个提交与其前一个合并，并丢弃日志信息。
+			git rebase br :说明,假设当前branch 为br1,br1 为br 的某个commit 打的分支,且打过分支后br1,br 都有过commit,
+					执行rebase 后,当前分支会对修改内容进行差分打包,然后本分支的历史信息为br修改log++br1修改log
+					br commit 信息 D-E-F(合并时间点),br1 commit 信息A-B-C
+					使用实例:git rebase br1 ;修正conflict ;git add (conflict 文件);git rebase --continue;.......
+					见http://blog.chinaunix.net/uid-26952464-id-3352144.html
+		11.git fetch : 更新远端服务器内容到本地 会更新remote repo中的所有branch 到本地,对因到本地的XX(repo 本地名称),xx/br(origin/master)下,可以通过git merge xx/br方式合并到本地
+			参数方式:git fetch origin/master 只是更新master分支
+			pull 可以理解为 fetch & merge
+		12. github 通过ssh免密连接使用,需要设置仓库地址为git@github.com:NAME(kong123)/repo(仓库名称)
+		13. git remote add **,可以通过git fetch,将远端仓库的内容同步到本地,然后通过git checkout branch 命令切换到分支,
+			如远端仓库有branch br1和br2, fetch后本地有remoteis/origin/br1,remotes/origin/br2分支,本地可以直接
+			git checkout br1,git chekout br2 直接切换到br1,或br2
+		      git clone 直接checkout 就行,应该是直接就将仓库内容同步到了本地
+		 14.git push origin (tagname) ,推送tag信息a
+		 	git push --tags  推送所有tag信息
+
+
+
+
