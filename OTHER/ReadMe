@@ -117,6 +117,8 @@
 		git add *相当于git hash-object -w * & git update-index --add * & git write-tree 
 		git commit -m ""相当于echo "XXXX"|git commit-tree
 			git commit --amend "修正上次提交的log"
+		git cat-file -t sha1sum/HEAD/master  查看类型(blob/commit /tree)
+		git cat-file -p sha1sum/HEAD/master	 查看具体数据
 	(2).其他
 		1.git init 后必须git commit 后才会出现branch(默认master)
 		2.git config --global alias.co checkout 设置快捷方式(别名)   git config --global --get-regexp alias  显示所有别名
