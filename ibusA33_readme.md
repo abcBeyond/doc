@@ -282,7 +282,36 @@
             * 读取余额-长按"OK"键刷卡
             * 读取18文件-长按"左键"刷卡
             * 读取1E文件-长按"F1"键刷卡
+    -  <span id="macinfo">宏值说明</span> 
+       代码中有许多地方用到了宏值去标识功能的切换,这里单独说明一下   
+       _incude.h
+       ```
+        #define Rely_Qt 1               //依赖Qt库标识
+        #define _ANDROID_ 0             //是否为安卓程序
+        #define NEWCardProcessMode 1    //读卡模块程序2.04(不包括)以上为1 否则为0
+        #define Test_TCos   1           //tcos 卡片测试协议,测试卡模拟通讯程序
+        #define L1Test 0                //是否为L1测试标识,1表示为L1测试测试程序 0 表示为其他程序(L2 或者其他城市逻辑程序)
 
+        #if !L1Test                     //L1Test L2Test 互斥
+        #define L2Test 1                //是否为L1测试标识,1表示为L1测试测试程序 0 表示为其他程序(L2 或者其他城市逻辑程序)
+        #else
+        #define L2Test 0
+        #endif
+
+        #if Rely_Qt
+        #define DEBUG_QT 1              //是否用Qt中的qDebug来打印Log信息,1表示用qDebug,0 表示用std::cout
+        #else
+        #define DEBUG_QT 0              //没有依赖Rely_Qt的话只能用std::cout
+        #endif
+
+        #if L2Test
+        #define isAtLive  1 //1表示测试现场版本9600,票价为设置卡票价.0表示使用大连PSAM卡38400波特率,扣款金额为1
+        #endif
+       ```
+       cardprocessdl.h
+       ```
+       #define Time_Debug 1//调试用,主要是打印卡交易流程中各个子流程的时间
+       ```
 * <span id="android"> 安卓移植</span>  
     1. 代码处理    
          当初为兼容安卓版本,刷卡流程部分没有用Qt相关库的API,其中有几个宏值需要特别关注一下:   
