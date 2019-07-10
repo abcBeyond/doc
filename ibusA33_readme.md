@@ -4,17 +4,27 @@
 
 ## 功能汇总  ##
 * [扣费流程](#costfee)
+    * [底层实现](#costfee1)
+        * [通讯](#costfeecomm)
+        * [协议](#costfeeprotocol)
+        * [UI](#costfeeui)
+        * [声音](#costfeesound)
+        * [设备](#costfeedevice)
+    * [卡处理](#cardprocessdetail)
+    * [大连业务](#dalianprocess)
 * [网络相关](#network)
 * [声音播放](#voice)
 * [交通部测试](#tmtest)
+    * [Level1](#level1)
+    * [Level2](#level2)
 * [安卓移植](#android)
 * [其他](#other)
 
 ## 功能详解 ##
 * <span id="costfee"> 扣费流程 </span>
      由于对应交通部L1测试,扣费流程代码做了部分更改,重新架构了底层串口通讯部分,同时针对这部分更改,也重新实现了一下大连的卡业务处理.  
-     1. 底层实现
-        * 通讯
+     1. <span id="costfee1">底层实现</span>
+        * <span id="costfeecomm">通讯</span>
             当前的业务主要是串口通讯,代码设计时考虑到其他通讯方式的可能性,设计了基类BaseTransTools
             ```
             class BaseTransTools{
@@ -84,7 +94,7 @@
                 bool _setUART(tPortSetting);
             };
             ```
-        * 协议
+        * <span id="costfeeprotocol">协议</span>
            两部分协议,一是同读卡模块的通讯(参考文档"MF-Reader通信协议V1.4.doc"),另一个是和PSAM通讯的协议(参考资料 白皮书 "建设部安全认证卡(模块)技术要求",应该有最新的,写代码时参考本书)   
            涉及到的代码内容:
            ```
@@ -120,17 +130,17 @@
                 ...
            }
            ```
-        * UI 
+        * <span id="costfeeui">UI </span>
            封装接口调用原界面显示接口进行显示  
            相关代码:
            ```
            ```
-        * 声音
+        * <span id="costfeesound">声音</span>
            封装接口调用原接口进行语音播放,[声音](#voice)   
            相关代码:
            ```
            ```
-        * 设备
+        * <span id="costfeedevice">设备</span>
             工厂模式实现,通过实例化"通讯","协议","UI"以及"声音"的组合,来实现不同的设备,当前代码中主要实现了两个设备CardReaderDevice 和 PSAMDevice,主要用来实现当前的业务需求,如后续添加其他业务,只需实现相应协议等内容,重新组合一下即可  
             相关代码:
             ```
@@ -158,7 +168,7 @@
             }
             ```
 
-     2. 卡处理
+     2. <span id="cardprocessdetail">卡处理</span>
         主要是对应项目中的process文件夹下的文件,其中baseprocess.h中声明基类BaseCardProcess,其中纯虚函数是process是处理入口,子类只需重载process函数来实现业务处理
         ```
         class BaseCardProcess
@@ -174,7 +184,7 @@
             m_db = new CardprocessDBCSV();
         ```
 
-     3. 大连业务处理
+     3. <span id="dalianprocess">大连业务处理</span>
         见文件"cardprocessdl.h"及"cardprocessdl.cpp"
 
 * <span id="network"> 网络相关 </span>
@@ -185,7 +195,7 @@
      iBus代码相关文件:
 
 * <span id="tmtest"> 交通部测试</span>   
-    - Level1   
+    - <span id="level1">Level1</span>
         Level1的测试基本已经完成,部分未通过相需要等待刷卡模块程序完善.   
         以下是代码基本逻辑的流程图:
         <span id = "totalprocess">总流程:</span>
@@ -250,9 +260,24 @@
 
         ```
         防冲突,选择,GetRTS以及后续的APDU逻辑上比较简单,更多的是判断刷卡模块的返回值,具体可参考代码 
-    - Level2
-    ```
-    ```
+    - <span id="level2">Level2</span>
+        20190703现场测试后需要关注的问题   
+        1. 余额获取问题
+        ```
+            char type[]={0x02};//01 电子存折 02 电子现金
+            char type_p1[]={0x03};//P1类型
+            tBack = reader->APDUGetBalance(type_p1,GetArrayLen(type_p1),type,GetArrayLen(type));
+            if(tBack.backStatus != R_Card_Success){
+                Debug()<<"read Balance Error";
+                return result;
+            }
+        ```
+        其中代码中的type_p1的值可选为0x01和0x03,交通部测试要求为0x03,现场的卡片返回值为"押金+余额",会影响后续灰名单(闪卡)处理,需确认.
+        2. PSAM卡
+        * 波特率调整
+            修正 _include.h文件中的宏"isAtLive"(只有在L2Test为1的情况才会定义此宏值),如果isAtLive为1表示使用测试现场提供的PSAM,其波特率为9600,否则为38400
+        * PSAM切换
+            L2测试时不需要PSAM切换,相关代码已注释掉
 * <span id="android"> 安卓移植</span>  
     1. 代码处理    
          当初为兼容安卓版本,刷卡流程部分没有用Qt相关库的API,其中有几个宏值需要特别关注一下:   
@@ -273,3 +298,7 @@
          1. tinyalsa
          2. dhclient
          3. quectel-CM
+         SVN路径总结:   
+         1. 交通部L1测试分支:svn://172.18.1.3/bus_m2plus2440/code/branches_A33/dalian_JTBTest_L1/
+         2. 交通部L2测试分支:svn://172.18.1.3/bus_m2plus2440/code/branches_A33/dalian_JTBTest/
+         3.  A33可运行代码(大连):svn://172.18.1.3/bus_m2plus2440/code/branches_A33/dalian_wifi_yixing
