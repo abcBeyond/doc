@@ -261,23 +261,28 @@
         ```
         防冲突,选择,GetRTS以及后续的APDU逻辑上比较简单,更多的是判断刷卡模块的返回值,具体可参考代码 
     - <span id="level2">Level2</span>
-        20190703现场测试后需要关注的问题   
-        1. 余额获取问题
+        20190703现场测试后需要关注的问题  
+        1. 余额获取指令问题
         ```
             char type[]={0x02};//01 电子存折 02 电子现金
-            char type_p1[]={0x03};//P1类型
+            char type_p1[]={0x03};//P1类型,交通部要求为03
             tBack = reader->APDUGetBalance(type_p1,GetArrayLen(type_p1),type,GetArrayLen(type));
             if(tBack.backStatus != R_Card_Success){
                 Debug()<<"read Balance Error";
                 return result;
             }
         ```
-        其中代码中的type_p1的值可选为0x01和0x03,交通部测试要求为0x03,现场的卡片返回值为"押金+余额",会影响后续灰名单(闪卡)处理,需确认.
+            其中代码中的type_p1的值可选为0x01和0x03,交通部测试要求为0x03,现场的卡片返回值为"押金+余额",会影响后续灰名单(闪卡)处理,需确认.
         2. PSAM卡
-        * 波特率调整
-            修正 _include.h文件中的宏"isAtLive"(只有在L2Test为1的情况才会定义此宏值),如果isAtLive为1表示使用测试现场提供的PSAM,其波特率为9600,否则为38400
-        * PSAM切换
-            L2测试时不需要PSAM切换,相关代码已注释掉
+            * 波特率调整
+                修正 _include.h文件中的宏"isAtLive"(只有在L2Test为1的情况才会定义此宏值),如果isAtLive为1表示使用测试现场提供的PSAM,其波特率为9600,否则为38400
+            * PSAM切换
+                L2测试时不需要PSAM切换,相关代码已注释掉
+        3. 测试界面的按键触发
+            * 读取余额-长按"OK"键刷卡
+            * 读取18文件-长按"左键"刷卡
+            * 读取1E文件-长按"F1"键刷卡
+
 * <span id="android"> 安卓移植</span>  
     1. 代码处理    
          当初为兼容安卓版本,刷卡流程部分没有用Qt相关库的API,其中有几个宏值需要特别关注一下:   
