@@ -336,3 +336,4 @@
          1. 交通部L1测试分支:svn://172.18.1.3/bus_m2plus2440/code/branches_A33/dalian_JTBTest_L1/
          2. 交通部L2测试分支:svn://172.18.1.3/bus_m2plus2440/code/branches_A33/dalian_JTBTest/
          3.  A33可运行代码(大连):svn://172.18.1.3/bus_m2plus2440/code/branches_A33/dalian_wifi_yixing
+         4. 交通部检测相关文档路径: svn://172.18.1.3/bus_m2plus2440/doc/dalian/交通部检测资料/交通部测试资料
